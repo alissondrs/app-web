@@ -54,5 +54,22 @@ def delete(id):
             return jsonify({'mensagem': 'User deleted with sucess'}), 200
     return jsonify({'mensagem': 'user not found'}), 404
 
+@app.route('/update/<int:id>', methods=['PUT'])
+def update(id):
+    user = None
+    for u in lista:
+        if u['id'] == id:
+            user=u
+            break
+    if user is None:
+        return jsonify({'erro': 'user not found'}), 404
+    # push data from request to user
+    dados = request.json
+    user['nome'] = dados.get('nome', user['nome'])
+    user['idade'] = dados.get('idade', user['idade'])
+    print(lista)
+
+    return jsonify(user), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
