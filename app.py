@@ -34,7 +34,7 @@ def create():
     # verify if user already exists
     for user in lista:
         if user['id'] == id:
-            return jsonify({'mensagem': 'Usuário já existe'}), 409
+            return jsonify({'mensagem': 'user already exists'}), 409
     
     # add user to list
     user = {'id': id, 'nome': nome, 'idade': idade}
@@ -42,7 +42,7 @@ def create():
     print(lista)
     
     #return success message
-    return jsonify({'mensagem': 'Usuário criado com sucesso'}), 201 
+    return jsonify({'mensagem': 'user created with susses'}), 201 
 
 
 if __name__ == '__main__':
