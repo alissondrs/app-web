@@ -19,7 +19,7 @@ curl localhost:8080/read/<id>
 curl -X POST -H "Content-Type: application/json" -d '{"nome": "<nome>", "idade": <idade>}' http://localhost:8080/create
 
 # To update
-curl -X PUT -H "Content-Type: application/json" -d '{"nome": "Novo nome", "idade": 30}' http://localhost:8080/update/<id>
+curl -X PUT -H "Content-Type: application/json" -d '{"nome": "<nome>", "idade": <idade>}' http://localhost:8080/update/<id>
 
 # To delete
 curl -X DELETE localhost:8080/delete/<id>
