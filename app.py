@@ -23,7 +23,26 @@ def read(id):
             return jsonify(pessoa)
     return jsonify({'mensagem': 'user not found'}), 404    
 
-
+@app.route('/create', methods=['POST'])
+def create():
+    new_user = request.json
+    last_id = max(user_id["id"] for user_id in lista)    
+    id = last_id +1
+    nome = new_user.get('nome')
+    idade = new_user.get('idade')
+    
+    # verify if user already exists
+    for user in lista:
+        if user['id'] == id:
+            return jsonify({'mensagem': 'user already exists'}), 409
+    
+    # add user to list
+    user = {'id': id, 'nome': nome, 'idade': idade}
+    lista.append(user)
+    print(lista)
+    
+    #return success message
+    return jsonify({'mensagem': 'user created with susses'}), 201 
 
 
 if __name__ == '__main__':
