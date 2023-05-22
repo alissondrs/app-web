@@ -44,6 +44,15 @@ def create():
     #return success message
     return jsonify({'mensagem': 'user created with susses'}), 201 
 
+@app.route('/delete/<int:id>', methods=['DELETE'])
+def delete(id):
+    for user_id in lista:
+        if user_id['id'] == id:
+            print(user_id)
+            lista.remove(user_id)
+            print(lista)
+            return jsonify({'mensagem': 'User deleted with sucess'}), 200
+    return jsonify({'mensagem': 'user not found'}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
