@@ -8,6 +8,14 @@ Aplicação para estudar api com CRUD(Create, Read, Update, Delete)
 flask run --port=8080
 ```
 
+or
+
+```
+docker build . --tag alissondrs/app-web
+
+docker run --rm --publish 8080:8080 alissondrs/app-web
+```
+
 ## Usage
 
 ```bash
