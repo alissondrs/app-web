@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Variáveis de ambiente para configurações do banco de dados
-export DB_USER="root"
-export DB_PASSWORD="01senhaPP"
-export DB_NAME="dbusers"
+export DB_USER=""
+export DB_PASSWORD=""
+export DB_NAME=""
 
 # Criação do banco de dados
 mysql -u "$DB_USER" -p"$DB_PASSWORD" -e "CREATE DATABASE $DB_NAME"
