@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Adicionar Usuário</title>
+</head>
+
+<body>
+  <h1>Adicionar Usuário</h1>
+  <form id="create">
+    <label for="nome">Nome:</label>
+    <input type="text" id="nome" name="nome"><br><br>
+    <label for="idade">Idade:</label>
+    <input type="text" id="idade" name="idade"><br><br>
+    <input type="submit" value="Enviar">
+  </form>
+  <h1>Consultar Usuário</h1>
+  <form id="read">
+    <label for="id">Id:</label>
+    <input type="text" id="id" name="id"><br><br>
+    <button type="button" onclick="consultarUsuario()">Consultar</button>
+  </form>
+  <h1>Deleta Usuário</h1>
+  <form id="delete">
+    <label for="id">Id:</label>
+    <input type="text" id="id" name="id"><br><br>
+    <button type="button" onclick="deleteUser()">Deletar</button>
+  </form>
+  <h1>Atualizar Usuário</h1>
+  <form id="update">
+    <label for="id">Id:</label>
+    <input type="text" id="id" name="id"><br><br>
+    <label for="nome">Nome:</label>
+    <input type="text" id="nome" name="nome"><br><br>
+    <label for="idade">Idade:</label>
+    <input type="text" id="idade" name="idade"><br><br>
+    <button type="button" onclick="updateUser()">Atualizar</button>
+  </form>
+
+</body>  
