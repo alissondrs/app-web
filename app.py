@@ -15,15 +15,15 @@ lista = [
 
 
 #Read route
-@app.route('/read/<int:id>', methods=['GET'])
+@app.route('/users/<int:id>', methods=['GET'])
 def read(id):
 # Iterar sobre a lista de users e imprimir o ID de cada um
     for pessoa in lista:
         if pessoa['id'] == id:
             return jsonify(pessoa)
-    return jsonify({'mensagem': 'user not found'}), 404    
-
-@app.route('/create', methods=['POST'])
+    return jsonify({'mensagem': 'user not found'}), 404
+     
+@app.route('/users/', methods=['POST'])
 def create():
     new_user = request.json
     last_id = max(user_id["id"] for user_id in lista)    
@@ -44,7 +44,7 @@ def create():
     #return success message
     return jsonify({'mensagem': 'user created with susses'}), 201 
 
-@app.route('/delete/<int:id>', methods=['DELETE'])
+@app.route('/user/<int:id>', methods=['DELETE'])
 def delete(id):
     for user_id in lista:
         if user_id['id'] == id:
@@ -54,7 +54,7 @@ def delete(id):
             return jsonify({'mensagem': 'User deleted with sucess'}), 200
     return jsonify({'mensagem': 'user not found'}), 404
 
-@app.route('/update/<int:id>', methods=['PUT'])
+@app.route('/user/<int:id>', methods=['PUT'])
 def update(id):
     user = None
     for u in lista:
