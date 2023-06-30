@@ -16,7 +16,7 @@ lista = [
 
 
 #Read route
-@app.route('/users/<int:id>', methods=['GET'])
+@app.route('/user/<int:id>', methods=['GET'])
 def read(id):
     db = connection_db()
     cursor = db.cursor()
@@ -74,20 +74,35 @@ def delete(id):
 
 @app.route('/user/<int:id>', methods=['PUT'])
 def update(id):
-    user = None
-    for u in lista:
-        if u['id'] == id:
-            user=u
-            break
-    if user is None:
-        return jsonify({'erro': 'user not found'}), 404
-    # push data from request to user
-    dados = request.json
-    user['nome'] = dados.get('nome', user['nome'])
-    user['idade'] = dados.get('idade', user['idade'])
-    print(lista)
+    db = connection_db()
+    cursor = db.cursor()
+    #verify if user exists
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
+    user = cursor.fetchone()
+    if not user:
+        return jsonify({'mensagem': 'user not found'}), 404
+    #update user
+    new_user = request.json
+    nome = new_user.get('nome')
+    idade = new_user.get('idade')
+    cursor.execute("UPDATE usuarios SET nome = %s, idade = %s WHERE id = %s", (nome, idade, id))
+    db.commit()
+    return jsonify({'mensagem': 'User updated with sucess'}), 200
 
-    return jsonify(user), 200
-
+@app.route('/users/', methods=['GET'])
+def read_all():
+    db = connection_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM usuarios")
+    users = cursor.fetchall()
+    users_list = []
+    for user in users:
+        user_data = {
+            'id': user[0],
+            'nome': user[1],
+            'idade': user[2]  
+        }
+        users_list.append(user_data)
+    return jsonify(users_list), 200
 if __name__ == '__main__':
     app.run(debug=True)
