@@ -72,14 +72,6 @@ def delete(id):
     db.commit()
     return jsonify({'mensagem': 'User deleted with sucess'}), 200
 
-    # for user_id in lista:
-    #     if user_id['id'] == id:
-    #         print(user_id)
-    #         lista.remove(user_id)
-    #         print(lista)
-    #         return jsonify({'mensagem': 'User deleted with sucess'}), 200
-    # return jsonify({'mensagem': 'user not found'}), 404
-
 @app.route('/user/<int:id>', methods=['PUT'])
 def update(id):
     user = None
