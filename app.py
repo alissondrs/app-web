@@ -60,13 +60,17 @@ def create():
 
 @app.route('/user/<int:id>', methods=['DELETE'])
 def delete(id):
-    for user_id in lista:
-        if user_id['id'] == id:
-            print(user_id)
-            lista.remove(user_id)
-            print(lista)
-            return jsonify({'mensagem': 'User deleted with sucess'}), 200
-    return jsonify({'mensagem': 'user not found'}), 404
+    db = connection_db()
+    cursor = db.cursor()
+    #verify if user exists
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
+    user = cursor.fetchone()
+    if not user:
+        return jsonify({'mensagem': 'user not found'}), 404
+    # delete user
+    cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
+    db.commit()
+    return jsonify({'mensagem': 'User deleted with sucess'}), 200
 
 @app.route('/user/<int:id>', methods=['PUT'])
 def update(id):
