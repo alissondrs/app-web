@@ -1,9 +1,14 @@
 #!/bin/bash
 
 # Variáveis de ambiente para configurações do banco de dados
-export DB_USER=""
-export DB_PASSWORD=""
-export DB_NAME=""
+
+{
+export DB_USER=
+export DB_PASSWORD=
+export DB_NAME=
+export DB_HOST=
+export DB_PORT=
+}
 
 # Criação do banco de dados
 mysql -u "$DB_USER" -p"$DB_PASSWORD" -e "CREATE DATABASE $DB_NAME"
@@ -22,3 +27,6 @@ for i in {1..10}; do
 done
 
 echo "Configuração do banco de dados e inserção de usuários concluída com sucesso!"
+
+
+

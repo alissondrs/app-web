@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import json
 from flask_cors import CORS
+from mysql_scripts.db_mysql import connection_db
 
 app = Flask(__name__)
 CORS(app)
@@ -17,11 +18,24 @@ lista = [
 #Read route
 @app.route('/users/<int:id>', methods=['GET'])
 def read(id):
-# Iterar sobre a lista de users e imprimir o ID de cada um
-    for pessoa in lista:
-        if pessoa['id'] == id:
-            return jsonify(pessoa)
-    return jsonify({'mensagem': 'user not found'}), 404
+    db = connection_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
+    user = cursor.fetchone()
+
+    if user:
+        user_data = {
+            'id': user[0],
+            'nome': user[1],
+            'idade': user[2]  
+        }
+        return jsonify(user_data), 200
+    else:
+        return jsonify({'mensagem': 'user not found'}), 404
+        # for pessoa in lista:
+    #     if pessoa['id'] == id:
+    #         return jsonify(pessoa)
+    # return jsonify({'mensagem': 'user not found'}), 404
      
 @app.route('/users/', methods=['POST'])
 def create():
