@@ -37,26 +37,26 @@ def read(id):
     #         return jsonify(pessoa)
     # return jsonify({'mensagem': 'user not found'}), 404
      
-@app.route('/users/', methods=['POST'])
+@app.route('/user/', methods=['POST'])
 def create():
+    db = connection_db()
+    cursor = db.cursor()
     new_user = request.json
-    last_id = max(user_id["id"] for user_id in lista)    
-    id = last_id +1
     nome = new_user.get('nome')
     idade = new_user.get('idade')
-    
-    # verify if user already exists
-    for user in lista:
-        if user['id'] == id:
-            return jsonify({'mensagem': 'user already exists'}), 409
-    
-    # add user to list
-    user = {'id': id, 'nome': nome, 'idade': idade}
-    lista.append(user)
-    print(lista)
-    
-    #return success message
-    return jsonify({'mensagem': 'user created with susses'}), 201 
+    #verify if user already exists
+    cursor.execute("SELECT * FROM usuarios WHERE nome = %s", (nome,))
+    user = cursor.fetchone()
+    if user:
+        return jsonify({'mensagem': 'user already exists'}), 409
+    #create new user
+    cursor.execute("INSERT INTO usuarios (nome, idade) VALUES (%s, %s)", (nome, idade))
+    db.commit()
+    #verify if new user was created
+    if cursor.rowcount == 1:
+        return jsonify({'mensagem': 'user created with susses'}), 201
+    else:
+        return jsonify({'mensagem': 'user not created'}), 400
 
 @app.route('/user/<int:id>', methods=['DELETE'])
 def delete(id):
