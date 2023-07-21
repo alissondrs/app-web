@@ -13,16 +13,16 @@ flask run --port=8080
 ```bash
 
 # To Read
-curl localhost:8080/read/<id>
+curl localhost:8080/user/<id>
 
 # To Create
-curl -X POST -H "Content-Type: application/json" -d '{"nome": "<nome>", "idade": <idade>}' http://localhost:8080/create
+curl -X POST -H "Content-Type: application/json" -d '{"nome": "<nome>", "idade": <idade>}' http://localhost:8080/user
 
 # To update
-curl -X PUT -H "Content-Type: application/json" -d '{"nome": "<nome>", "idade": <idade>}' http://localhost:8080/update/<id>
+curl -X PUT -H "Content-Type: application/json" -d '{"nome": "<nome>", "idade": <idade>}' http://localhost:8080/user/<id>
 
 # To delete
-curl -X DELETE localhost:8080/delete/<id>
+curl -X DELETE localhost:8080/user/<id>
 
 
 ```
