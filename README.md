@@ -21,6 +21,10 @@ docker run -e APP_USER=$APP_USER -e DB_HOST=$DB_HOST -e APP_PASSWORD=$APP_PASSWO
 
 ```bash
 
+# health check
+curl localhost:8080/health
+
+
 # To Read
 curl localhost:8080/user/<id>
 
