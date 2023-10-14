@@ -1,9 +1,9 @@
-variable "name" {
+variable "sg_name" {
   type        = string
   description = "The name of the security group"
 }
 
-ariable "vpc_id"   {
+variable "vpc_id"   {
   type        = string
   description = "The VPC ID" 
 }
