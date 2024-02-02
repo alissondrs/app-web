@@ -20,17 +20,17 @@ variable "ingress" {
   description = "Ingress Rules"
 }
 
-variable "ingress_sg" {
-  type = list(object({
-    description      = string,
-    from_port        = number,
-    to_port          = number,
-    protocol         = string,
-    security_groups  = list(string)
-   }))
-  default     = []
-  description = "Ingress Rules"
-}
+# variable "ingress_sg" {
+#   type = list(object({
+#     description      = string,
+#     from_port        = number,
+#     to_port          = number,
+#     protocol         = string,
+#     security_groups  = list(string)
+#    }))
+#   default     = []
+#   description = "Ingress Rules"
+# }
 
 variable "egress" {
   type = list(object({

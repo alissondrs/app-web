@@ -15,6 +15,10 @@ variable "subnet_ids" {
 
 variable "sg" {
   description = "The security group ID"
-  type = string
+  type = list(string)
 }
  
+variable enabled_cluster_log_types {
+  default = ["api", "audit"]
+  type = list(string)
+}

@@ -27,16 +27,16 @@ module "subnet-pub-a" {
   name              = "subnet-pub-a"
   vpc_id            = module.vpc.vpc_id
   subnet_cidr_block = "10.8.3.0/24"
-  availability_zone = "us-east-2a"
+  availability_zone = "us-east-1c"
   depends_on        = [module.vpc]
 }
 
 module "subnet-pub-b" {
   source            = "./modules/subnet/public"
-  name              = "subnet-pub-a"
+  name              = "subnet-pub-b"
   vpc_id            = module.vpc.vpc_id
   subnet_cidr_block = "10.8.4.0/24"
-  availability_zone = "us-east-1a"
+  availability_zone = "us-east-1d"
   depends_on        = [module.vpc]
 }
 
@@ -48,12 +48,9 @@ module "routetable-priv-a" {
     {
       destination_cidr_block = "0.0.0.0/0"
       nat_gateway_id         = module.subnet-priv-a.ntgw_id
-    },
-    {
-      destination_cidr_block = module.vpc.vpc_cidr
-      gateway_id             = "local"
     }
   ]
+  depends_on = [ module.subnet-priv-a, module.subnet-priv-a.ntgw_id, module.vpc ]
 }
 
 module "routetable-priv-b" {
@@ -64,12 +61,9 @@ module "routetable-priv-b" {
     {
       destination_cidr_block = "0.0.0.0/0"
       nat_gateway_id         = module.subnet-priv-b.ntgw_id
-    },
-    {
-      destination_cidr_block = module.vpc.vpc_cidr
-      gateway_id             = "local"
     }
   ]
+  depends_on = [ module.subnet-priv-b, module.subnet-priv-b.ntgw_id, module.vpc ]
 }
 
 module "routetable-pub" {
@@ -78,14 +72,11 @@ module "routetable-pub" {
   subnet_associations = [module.subnet-pub-a.id, module.subnet-pub-b.id]
   routes = [
     {
-      destination_cidr_block = "0.0.0.0"
+      destination_cidr_block = "0.0.0.0/0"
       gateway_id             = module.vpc.igw_id
-    },
-    {
-      destination_cidr_block = module.vpc.vpc_cidr
-      gateway_id             = "local"
     }
   ]
+  depends_on = [ module.vpc, module.subnet-pub-b, module.vpc.igw_id, module.subnet-pub-a ]
 }
 
 
@@ -114,7 +105,7 @@ module "role_eks" {
   })
 }
 
-module "eks_sg" {
+module "security-group-eks" {
   source  = "./modules/sg"
   sg_name = "eks-sg"
   vpc_id  = module.vpc.vpc_id
@@ -125,16 +116,14 @@ module "eks_sg" {
       to_port     = 0
       protocol    = "-1"
       cidr_blocks = [module.vpc.vpc_cidr]
-    }
-  ]
-  ingress_sg = [
-    {
-      description     = "Allow all traffic from eks-sg"
-      from_port       = 0
-      to_port         = 0
-      protocol        = "-1"
-      security_groups = [module.eks_sg.sg_id]
-    }
+    },
+    # {
+    #   description     = "Allow all traffic from eks-sg"
+    #   from_port       = 0
+    #   to_port         = 0
+    #   protocol        = "-1"
+    #   security_groups = [module.security-group-eks.id]
+    # }
   ]
   egress = [
     {
@@ -155,8 +144,9 @@ module "eks" {
   source     = "./modules/eks"
   eks_name   = "eks-cluster"
   role_arn   = module.role_eks.arn
-  sg = module.eks_sg.sg_id
+  sg = [module.security-group-eks.id]
   subnet_ids = [module.subnet-priv-a.id, module.subnet-priv-b.id]
-  depends_on = [module.role_eks]
+  depends_on = [module.role_eks, module.security-group-eks, module.subnet-priv-a, module.subnet-priv-b]
 }
+
   

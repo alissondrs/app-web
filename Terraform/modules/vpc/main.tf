@@ -13,8 +13,8 @@ resource "aws_internet_gateway" "igw" {
   
 }
 
-resource "aws_internet_gateway_attachment" "igw_attach" {
-    vpc_id = aws_vpc.main.id
-    internet_gateway_id = aws_internet_gateway.igw.id
-    depends_on = [ aws_internet_gateway.igw ]
-}
+# resource "aws_internet_gateway_attachment" "igw_attach" {
+#     vpc_id = aws_vpc.main.id
+#     internet_gateway_id = aws_internet_gateway.igw.id
+#     depends_on = [ aws_internet_gateway.igw ]
+# }
