@@ -6,9 +6,27 @@ from mysql_scripts.db_mysql import connection_db
 app = Flask(__name__)
 CORS(app)
 
+def check_connection():
+    try:
+        db = connection_db()
+        # Realiza uma consulta de teste para verificar se a conexão está ativa
+        cursor = db.cursor()
+        cursor.execute("SELECT 1")
+        cursor.close()
+        return True
+    except Exception as e:
+        print(f"Erro ao abrir conexão com o banco de dados: {e}")
+        return False
+    finally:
+        if 'db' in locals() and db:
+            db.close()
+
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({'status': 'ok'}), 200
+    if check_connection():
+        return jsonify({'status db': 'ok'}), 200
+    else:
+        return jsonify({'status db': 'error'}), 500
 
 #Read route
 @app.route('/user/<int:id>', methods=['GET'])
