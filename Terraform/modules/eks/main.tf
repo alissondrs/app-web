@@ -71,5 +71,5 @@ resource "aws_eks_node_group" "eks" {
     max_size     = 2
     min_size     = 2
   }
-  depends_on = [aws_eks_addon.eks]
+  # depends_on = [aws_eks_addon.eks]
 }
