@@ -1,4 +1,4 @@
-version: '3'
+version: '3.9'
 
 
 services:
@@ -13,19 +13,35 @@ services:
       - APP_USER=${APP_USER}
       - APP_PASSWORD=${APP_PASSWORD}
 
-  mysql:
-    image: mysql:latest
+
+  mysql-dev:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
-      - ./mysql-data:/var/lib/mysql
-      - ./mysql-init/:/docker-entrypoint-initdb.d/
-    command: --default-authentication-plugin=mysql_native_password
+      - ./data:/var/lib/mysql
+      # - ./mysql-init/:/docker-entrypoint-initdb.d/
 
-volumes: 
-  mysql-data:
+#   mysql:
+#     image: mysql/mysql_server:5.7.16 
+#     # restart: always
+#     environment:
+#       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+#       - MYSQL_DATABASE=${MYSQL_DATABASE}
+#       - MYSQL_USER=${MYSQL_USER}
+#       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+#     ports:
+#       - "3306:3306"
+#     expose:
+#       - '3306'
+#     volumes:
+#       - ${PWD}/mysql-data:/var/lib/mysql
+#       - ${PWD}/mysql-init/:/docker-entrypoint-initdb.d/
+#     command: --default-authentication-plugin=mysql_native_password
+
+# volumes: 
+#   mysql-data:

@@ -1,5 +1,5 @@
 -- Criação do usuário e concessão de privilégios
-CREATE USER 'app-user'@'%' IDENTIFIED BY '02senha';
+CREATE USER 'app-user'@'%' IDENTIFIED BY '01senha';
 GRANT ALL PRIVILEGES ON *.* TO 'app-user'@'%';
 FLUSH PRIVILEGES;
 
