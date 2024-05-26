@@ -1,0 +1,23 @@
+apiVersion: k3d.io/v1alpha2
+kind: Simple
+name: k8s-cluster
+servers: 2
+agents: 3
+# image: rancher/k3s:v5.63 # Substitua pela versão desejada do k3s
+ports:
+  - port: 80:80    # Porta HTTP
+    nodeFilters:
+      - server:0
+  - port: 443:443  # Porta HTTPS
+    nodeFilters:
+      - server:0
+# options:
+#   k3d:
+#     wait: true
+#   k3s:
+#     extraArgs:
+#       - arg: "--no-deploy=traefik"
+# volumes:
+#   - volume: /path/to/local/dir:/path/in/container
+#     nodeFilters:
+#       - all
