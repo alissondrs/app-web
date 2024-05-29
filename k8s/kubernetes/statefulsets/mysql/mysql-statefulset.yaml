@@ -20,16 +20,22 @@ spec:
         - containerPort: 3306
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: "01senha!"
+          value: "01senha"
         - name: MYSQL_DATABASE
-          value: "app-web"
+          value: "appdb"
         - name: MYSQL_USER
-          value: "app"
+          value: "app-user"
         - name: MYSQL_PASSWORD
-          value: "01senha!"
+          value: "01senha"
         volumeMounts:
+        - name: initdb
+          mountPath: /docker-entrypoint-initdb.d
         - name: mysql-persistent-storage
           mountPath: /var/lib/mysql
+      volumes:
+      - name: initdb
+        configMap:
+          name: initdb
   volumeClaimTemplates:
   - metadata:
       name: mysql-persistent-storage
@@ -38,3 +44,18 @@ spec:
       resources:
         requests:
           storage: 1Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  selector:
+    app: mysql
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306
+  clusterIP: None

@@ -14,20 +14,28 @@ spec:
     spec:
       containers:
         - name: app-web
-          image: alissondrs/app-web:latest
+          image: alissondrs/app-web:0.0.1
           ports:
             - containerPort: 8080
           env:
             - name: DB_HOST
-              value: "mysql-service.default.svc.cluster.local"
+              value: "10.42.3.8"
             - name: DB_PORT
               value: "3306"
             - name: APP_USER
-              value: "app-web2"
+              value: "app-web"
             - name: APP_PASSWORD
               value: "01senha"
             - name: DB_NAME
-              value: "app_web"
+              value: "appdb"
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #       - sh
+          #       - -c
+          #       - mysql --host=$DB_HOST --port=$DB_PORT --user=$APP_USER --password=$APP_PASSWORD --database=$DB_NAME --execute='SELECT 1'
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 5              
 
 ---
 apiVersion: v1
