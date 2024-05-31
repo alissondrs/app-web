@@ -11,7 +11,7 @@ or
 
 
 ```
-
+docker build . --tag alissondrs/app-web
 
 docker run -e APP_USER=$APP_USER -e DB_HOST=$DB_HOST -e APP_PASSWORD=$APP_PASSWORD -e DB_NAME=$DB_NAME -e DB_PORT=$DB_PORT  --rm --publish 8080:8080 --network=host alissondrs/app-web
 
