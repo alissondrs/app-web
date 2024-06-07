@@ -1,2 +1,4 @@
 __py*
+docker-compose\data\*
 .terra*
+

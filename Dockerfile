@@ -8,7 +8,7 @@ ENV DB_PORT=
 ENV FLASK_APP=/app/app.py
 
 
-COPY . /app
+COPY ./src/app /app
 WORKDIR /app
 
 RUN pip install --upgrade pip

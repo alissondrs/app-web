@@ -8,8 +8,13 @@ CORS(app)
 
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({'status': 'ok'}), 200
-
+    #validar conexção com o banco de dados
+    db = connection_db()
+    if db:
+        return jsonify({'mensagem': 'Health check ok'}), 200
+    else:
+        return jsonify({'mensagem': 'Health check failed'}), 500
+    
 #Read route
 @app.route('/user/<int:id>', methods=['GET'])
 def read(id):

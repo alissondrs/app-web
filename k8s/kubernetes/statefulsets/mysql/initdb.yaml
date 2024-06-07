@@ -1,0 +1,14 @@
+apiVersion: v1
+
+kind: ConfigMap
+metadata:
+  name: initdb
+  namespace: default
+data:
+  initi.sql: |+
+    USE appdb;
+    CREATE TABLE usuarios (id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(255), idade INT);
+    CREATE USER 'app-user'@'%' IDENTIFIED BY '01senha';
+    GRANT ALL PRIVILEGES ON *.* TO 'app-user'@'%';
+    FLUSH PRIVILEGES;
+    
