@@ -2,6 +2,9 @@ import mysql.connector
 from mysql.connector import connection
 from mysql.connector.errors import Error
 import os
+import logging
+
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p')
 
 def connection_db():
     try:
@@ -19,10 +22,10 @@ def connection_db():
             port=db_port,
             auth_plugin='mysql_native_password')
         
-        
+        logging.info('Conexão com o banco de dados aberta')
         return conexao
     except mysql.connector.Error as erro:
-        print(f"Erro ao abrir conexão com o banco de dados: {erro}")
+        logging.error(f'Erro ao conectar com o banco de dados: {erro}')
         return None
 
 connection_db()
