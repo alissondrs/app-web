@@ -1,2 +1,3 @@
 __py*
 docker-compose\data\*
+*.log
