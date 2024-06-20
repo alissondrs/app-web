@@ -10,10 +10,14 @@ logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s 
 app = Flask(__name__)
 CORS(app)
 metrics = PrometheusMetrics(app)
+metrics.info('app_info', 'App Information', version='1.0.3')
 
 @app.route('/health', methods=['GET'])
 @metrics.do_not_track()
-@metrics.counter('health_check', 'Number of health checks')
+@metrics.counter('app_health_check_total', 'Number of health checks')
+@metrics.gauge('app_health_check_status', 'Health check status')
+@metrics.summary('app_health_check_sumary', 'Health check summary')
+@metrics.histogram('app_health_check_histogram', 'Health check histogram')
 def health():
     #validar conexção com o banco de dados
     db = connection_db()
@@ -27,7 +31,10 @@ def health():
 #Read route
 @app.route('/user/<int:id>', methods=['GET'])
 @metrics.do_not_track()
-@metrics.counter('read_user', 'Number of read users')
+@metrics.counter('app_read_user', 'Number of read users')
+@metrics.gauge('app_read_user_status', 'Read user status')	
+@metrics.summary('app_read_user_summary', 'Read user summary')
+@metrics.histogram('app_read_user_histogram', 'Read user histogram')
 def read(id):
     db = connection_db()
     cursor = db.cursor()
@@ -49,7 +56,10 @@ def read(id):
      
 @app.route('/user/', methods=['POST'])
 @metrics.do_not_track()
-@metrics.counter('create_user', 'Number of create users')
+@metrics.counter('app_create_user', 'Number of create users')
+@metrics.gauge('app_create_user_status', 'Create user status')
+@metrics.summary('app_create_user_summary', 'Create user summary')
+@metrics.histogram('app_create_user_histogram', 'Create user histogram')
 def create():
     db = connection_db()
     cursor = db.cursor()
@@ -76,7 +86,10 @@ def create():
 
 @app.route('/user/<int:id>', methods=['DELETE'])
 @metrics.do_not_track()
-@metrics.counter('delete_user', 'Number of delete users')
+@metrics.counter('app_delete_user', 'Number of delete users')
+@metrics.gauge('app_delete_user_status', 'Delete user status')
+@metrics.summary('app_delete_user_summary', 'Delete user summary')
+@metrics.histogram('app_delete_user_histogram', 'Delete user histogram')
 def delete(id):
     db = connection_db()
     cursor = db.cursor()
@@ -94,7 +107,10 @@ def delete(id):
 
 @app.route('/user/<int:id>', methods=['PUT'])
 @metrics.do_not_track()
-@metrics.counter('update_user', 'Number of update users')
+@metrics.counter('app_update_user', 'Number of update users')
+@metrics.gauge('app_update_user_status', 'Update user status')
+@metrics.summary('app_update_user_summary', 'Update user summary')
+@metrics.histogram('app_update_user_histogram', 'Update user histogram')
 def update(id):
     db = connection_db()
     cursor = db.cursor()
@@ -116,6 +132,9 @@ def update(id):
 @app.route('/users/', methods=['GET'])
 @metrics.do_not_track()
 @metrics.counter('read_all_users', 'Number of read all users')
+@metrics.gauge('read_all_users_status', 'Read all users status')
+@metrics.summary('read_all_users_summary', 'Read all users summary')
+@metrics.histogram('read_all_users_histogram', 'Read all users histogram')
 def read_all():
     db = connection_db()
     cursor = db.cursor()
