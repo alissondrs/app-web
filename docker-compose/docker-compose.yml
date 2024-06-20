@@ -13,28 +13,32 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./initdb:/docker-entrypoint-initdb.d
-    # networks:
-    #   - app-net
+    networks:
+      - app-net
   proemtheus:
     image: prom/prometheus
     ports:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    # networks:
-    #   - app-net
-  prometheus-exporter:
+    networks:
+      - app-net
+  node-exporter:
     image: prom/node-exporter
     ports:
       - "9100:9100"
-    # networks:
-    #   - app-net
+    networks:
+      - app-net
   grafana:
     image: grafana/grafana
     ports:
       - "3000:3000"
-    # networks:
-    #   - app-net        
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+    networks:
+      - app-net        
   app:
     image: alissondrs/app-web:logs-metrics
     ports:
@@ -47,12 +51,12 @@ services:
       - APP_PASSWORD=${APP_PASSWORD}
     depends_on:
       - db
-    # networks:
-    #   - app-net
+    networks:
+      - app-net
 
-# networks:
-#   app-net:
-#     driver: bridge
+networks:
+  app-net:
+    driver: bridge
 volumes:
   mysql-data:
 
