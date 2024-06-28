@@ -4,7 +4,7 @@
 user_prefix="user"
 
 # Loop para criar 30 usuários
-for i in {800..900}
+for i in {900..2000}
 do
    username="${user_prefix}${i}"
    idade=$(( ( RANDOM % 100 )  + 1 ))
@@ -12,13 +12,13 @@ do
    echo "Usuário $username $idade criado."
 done
 
-for i in {100..200}
+for i in {100..1000}
 do
    curl localhost:8080/user/$i
 done
 
 
-for i in {50..80}
+for i in {50..300}
 do
    curl -X DELETE localhost:8080/user/$i
 done

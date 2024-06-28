@@ -22,7 +22,8 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
-      - app-net
+      app-net:
+        ipv4_address: 172.28.1.2
   node-exporter:
     image: prom/node-exporter
     ports:
@@ -37,6 +38,10 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_SECURITY_ALLOW_EMBEDDING=true
+    volumes:
+    - ./datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    - ./dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+    - ./dashboard.json:/etc/grafana/provisioning/dashboards/dashboard.json
     networks:
       - app-net        
   app:
@@ -51,12 +56,20 @@ services:
       - APP_PASSWORD=${APP_PASSWORD}
     depends_on:
       - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 3s
+      timeout: 1s
+      retries: 3      
     networks:
       - app-net
 
 networks:
   app-net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
 volumes:
   mysql-data:
 
