@@ -31,7 +31,7 @@ metrics.info('app_info', 'App Information', version='1.0.3')
 
 @app.route('/health', methods=['GET'])
 # @metrics.do_not_track()
-@metrics.counter('app_health_check_total', 'Number of health checks', labels={'status_code': lambda r: r.status_code})
+@metrics.counter('app_health_check_total', 'Number of health checks', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
 @metrics.gauge('app_health_check_status', 'Health check status')
 @metrics.summary('app_health_check_sumary', 'Health check summary')
 @metrics.histogram('app_health_check_histogram', 'Health check histogram')
@@ -49,7 +49,7 @@ def health():
 #Read route
 @app.route('/user/<int:id>', methods=['GET'])
 # @metrics.do_not_track()
-@metrics.counter('app_read_user', 'Number of read users', labels={'status_code': lambda r: r.status_code})
+@metrics.counter('app_read_user', 'Number of read users', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
 @metrics.gauge('app_read_user_status', 'Read user status')	
 @metrics.summary('app_read_user_summary', 'Read user summary')
 @metrics.histogram('app_read_user_histogram', 'Read user histogram')
@@ -74,7 +74,7 @@ def read(id):
      
 @app.route('/user/', methods=['POST'])
 # @metrics.do_not_track()
-@metrics.counter('app_create_user', 'Number of create users', labels={'status_code': lambda r: r.status_code})
+@metrics.counter('app_create_user', 'Number of create users', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
 @metrics.gauge('app_create_user_status', 'Create user status')
 @metrics.summary('app_create_user_summary', 'Create user summary')
 @metrics.histogram('app_create_user_histogram', 'Create user histogram')
@@ -104,7 +104,7 @@ def create():
 
 @app.route('/user/<int:id>', methods=['DELETE'])
 # @metrics.do_not_track()
-@metrics.counter('app_delete_user', 'Number of delete users', labels={'status_code': lambda r: r.status_code})
+@metrics.counter('app_delete_user', 'Number of delete users', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
 @metrics.gauge('app_delete_user_status', 'Delete user status')
 @metrics.summary('app_delete_user_summary', 'Delete user summary')
 @metrics.histogram('app_delete_user_histogram', 'Delete user histogram')
@@ -125,7 +125,7 @@ def delete(id):
 
 @app.route('/user/<int:id>', methods=['PUT'])
 # @metrics.do_not_track()
-@metrics.counter('app_update_user', 'Number of update users', labels={'status_code': lambda r: r.status_code})
+@metrics.counter('app_update_user', 'Number of update users', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
 @metrics.gauge('app_update_user_status', 'Update user status')
 @metrics.summary('app_update_user_summary', 'Update user summary')
 @metrics.histogram('app_update_user_histogram', 'Update user histogram')
@@ -149,7 +149,7 @@ def update(id):
 
 @app.route('/users/', methods=['GET'])
 # @metrics.do_not_track()
-@metrics.counter('read_all_users', 'Number of read all users', labels={'status_code': lambda r: r.status_code})
+@metrics.counter('read_all_users', 'Number of read all users', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
 @metrics.gauge('read_all_users_status', 'Read all users status')
 @metrics.summary('read_all_users_summary', 'Read all users summary')
 @metrics.histogram('read_all_users_histogram', 'Read all users histogram')
