@@ -3,6 +3,7 @@ import json
 from flask_cors import CORS
 from mysql_scripts.db_mysql import connection_db
 import logging
+# from pythonjsonlogger import jsonlogger
 from prometheus_flask_exporter import PrometheusMetrics, Gauge, Counter, Summary, Histogram
 
 # Configurar o logging
@@ -11,30 +12,27 @@ app = Flask(__name__)
 CORS(app)
 metrics = PrometheusMetrics(app, group_by='endpoint')
 metrics.info('app_info', 'App Information', version='1.0.3')
+labels={
+    'status': lambda r: r.status_code if r is not None else 'no_response',
+    'route': lambda: request.path if request else 'no_request',
+    'endpoint': lambda: request.endpoint if request else 'no_request',
+    'method': lambda: request.method if request else 'no_request',
+}
 
-# app_health_checkt_counter_200 = Counter('health_check_200', 'Health check ok', ['status_code'])
-# app_health_checkt_counter_500 = Counter('health_check_500', 'Health check error', ['status_code'])
-# app_read_user_counter_200 = Counter('read_user_200', 'Read user', ['status_code'])
-# app_read_user_counter_404 = Counter('user_not_found_404', 'User not found', ['status_code'])
-# app_create_user_counter_201 = Counter('create_user_201', 'Create user', ['status_code'])
-# app_create_user_counter_409 = Counter('user_already_exists_409', 'User already exists', ['status_code'])
-# app_create_user_counter_400 = Counter('user_not_created_400', 'User not created', ['status_code'])
-# app_delete_user_counter_204 = Counter('delete_user_204', 'Delete user', ['status_code'])
-# app_delete_user_counter_404 = Counter('user_not_found_delete_404', 'User not found', ['status_code'])
-# app_update_user_counter_200 = Counter('update_user_200', 'Update user', ['status_code'])
-# app_update_user_counter_404 = Counter('user_not_found_update_404', 'User not found', ['status_code'])
-# app_read_all_users_counter_200 = Counter('read_all_users_200', 'Read all users', ['status_code'])
+# jls_extract_var = metrics
+# metrics.register_default(
+#     metrics.counter('app_request_total', 'Total HTTP requests', labels=labels),
+#     metrics.gauge('app_request_duration_seconds', 'HTTP request duration in seconds', labels=labels ),
+#     metrics.summary('app_request_duration_seconds_summary', 'HTTP request duration in seconds summary', labels=labels),
+#     metrics.histogram('app_request_duration_seconds_histogram', 'HTTP request duration in seconds histogram', labels=labels)
+# )
 
-# @app.route('/metrics_custon')
-# def metrics():
-#     return Response(prometheus_client.generate_latest(), mimetype=CONTENT_TYPE_LATEST)
-
-@app.route('/health', methods=['GET'])
-# @metrics.do_not_track()
-@metrics.counter('app_health_check_total', 'Number of health checks', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
-@metrics.gauge('app_health_check_status', 'Health check status')
-@metrics.summary('app_health_check_sumary', 'Health check summary')
-@metrics.histogram('app_health_check_histogram', 'Health check histogram')
+@app.route('/health', methods=['GET'], endpoint='health')
+# 
+@metrics.counter('app_health_check_total', 'Number of health checks', labels=labels)
+@metrics.gauge('app_health_check_status', 'Health check status', labels={'status': 'status'})
+@metrics.summary('app_health_check_summary', 'Health check summary', labels=labels)
+@metrics.histogram('app_health_check_histogram', 'Health check histogram', labels=labels)
 
 def health():
     #validar conexção com o banco de dados
@@ -47,12 +45,12 @@ def health():
         return jsonify({'mensagem': 'Health check failed'}), 500
     
 #Read route
-@app.route('/user/<int:id>', methods=['GET'])
-# @metrics.do_not_track()
-@metrics.counter('app_read_user', 'Number of read users', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
-@metrics.gauge('app_read_user_status', 'Read user status')	
-@metrics.summary('app_read_user_summary', 'Read user summary')
-@metrics.histogram('app_read_user_histogram', 'Read user histogram')
+@app.route('/user/<int:id>', methods=['GET'], endpoint='read')
+# 
+@metrics.counter('app_read_user', 'Number of read users', labels=labels)
+@metrics.gauge('app_read_user_status', 'Read user status', labels=labels)	
+@metrics.summary('app_read_user_summary', 'Read user summary', labels=labels)
+@metrics.histogram('app_read_user_histogram', 'Read user histogram', labels=labels)
 def read(id):
     db = connection_db()
     cursor = db.cursor()
@@ -72,12 +70,12 @@ def read(id):
         logging.error('User not found')
         return jsonify({'mensagem': 'user not found'}), 404
      
-@app.route('/user/', methods=['POST'])
-# @metrics.do_not_track()
-@metrics.counter('app_create_user', 'Number of create users', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
-@metrics.gauge('app_create_user_status', 'Create user status')
-@metrics.summary('app_create_user_summary', 'Create user summary')
-@metrics.histogram('app_create_user_histogram', 'Create user histogram')
+@app.route('/user/', methods=['POST'], endpoint='create')
+# 
+@metrics.counter('app_create_user', 'Number of create users', labels=labels)
+@metrics.gauge('app_create_user_status', 'Create user status', labels=labels)
+@metrics.summary('app_create_user_summary', 'Create user summary', labels=labels)
+@metrics.histogram('app_create_user_histogram', 'Create user histogram', labels=labels)
 def create():
     db = connection_db()
     cursor = db.cursor()
@@ -102,12 +100,12 @@ def create():
         logging.error('User not created')
         return jsonify({'mensagem': 'user not created'}), 400
 
-@app.route('/user/<int:id>', methods=['DELETE'])
-# @metrics.do_not_track()
-@metrics.counter('app_delete_user', 'Number of delete users', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
-@metrics.gauge('app_delete_user_status', 'Delete user status')
-@metrics.summary('app_delete_user_summary', 'Delete user summary')
-@metrics.histogram('app_delete_user_histogram', 'Delete user histogram')
+@app.route('/user/<int:id>', methods=['DELETE'], endpoint='delete')
+# 
+@metrics.counter('app_delete_user', 'Number of delete users', labels=labels)
+@metrics.gauge('app_delete_user_status', 'Delete user status', labels=labels)
+@metrics.summary('app_delete_user_summary', 'Delete user summary', labels=labels)
+@metrics.histogram('app_delete_user_histogram', 'Delete user histogram', labels=labels)
 def delete(id):
     db = connection_db()
     cursor = db.cursor()
@@ -123,12 +121,12 @@ def delete(id):
     logging.info('User deleted with success')
     return jsonify({'mensagem': 'User deleted with sucess'}), 204
 
-@app.route('/user/<int:id>', methods=['PUT'])
-# @metrics.do_not_track()
-@metrics.counter('app_update_user', 'Number of update users', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
-@metrics.gauge('app_update_user_status', 'Update user status')
-@metrics.summary('app_update_user_summary', 'Update user summary')
-@metrics.histogram('app_update_user_histogram', 'Update user histogram')
+@app.route('/user/<int:id>', methods=['PUT'], endpoint='update')
+# 
+@metrics.counter('app_update_user', 'Number of update users', labels=labels)
+@metrics.gauge('app_update_user_status', 'Update user status', labels=labels)
+@metrics.summary('app_update_user_summary', 'Update user summary', labels=labels)
+@metrics.histogram('app_update_user_histogram', 'Update user histogram', labels=labels)
 def update(id):
     db = connection_db()
     cursor = db.cursor()
@@ -147,12 +145,12 @@ def update(id):
     logging.info('User updated with success')
     return jsonify({'mensagem': 'User updated with sucess'}), 200
 
-@app.route('/users/', methods=['GET'])
-# @metrics.do_not_track()
-@metrics.counter('read_all_users', 'Number of read all users', labels={'status_code': lambda r: r.status_code, 'route': lambda: request.path})
-@metrics.gauge('read_all_users_status', 'Read all users status')
-@metrics.summary('read_all_users_summary', 'Read all users summary')
-@metrics.histogram('read_all_users_histogram', 'Read all users histogram')
+@app.route('/users/', methods=['GET'], endpoint='read_all')
+# 
+@metrics.counter('read_all_users', 'Number of read all users', labels=labels)
+@metrics.gauge('read_all_users_status', 'Read all users status', labels=labels)
+@metrics.summary('read_all_users_summary', 'Read all users summary', labels=labels)
+@metrics.histogram('read_all_users_histogram', 'Read all users histogram', labels=labels)
 def read_all():
     db = connection_db()
     cursor = db.cursor()
