@@ -113,7 +113,7 @@ def register_routes(app: Flask, metrics: PrometheusMetrics) -> None:
             return _database_error_response()
 
         logging.info("User deleted with success")
-        return jsonify({"mensagem": "User deleted with sucess"}), 204
+        return "", 204
 
     @app.route("/user/<int:user_id>", methods=["PUT"], endpoint="update")
     @metrics.counter("app_update_user", "Number of update users", labels=labels)
