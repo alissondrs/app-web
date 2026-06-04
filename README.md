@@ -10,6 +10,9 @@ O backend foi organizado em modulos menores:
 - `src/app/webapp/`: criacao da app, rotas, validacao e acesso ao banco
 - `src/app/mysql_scripts/`: scripts auxiliares legados do MySQL
 - `tests/`: validacoes HTTP da API
+- `docker-compose/`: stack local com MySQL, Prometheus e Grafana
+- `k8s/kubernetes/`: manifests para k3d/k3s com `kustomization.yaml`
+- `Terraform/`: base Terraform para AWS (VPC, subnets, SG e EKS)
 
 ## Rodando localmente
 
@@ -53,7 +56,7 @@ Para subir a stack local com MySQL, Prometheus e Grafana:
 
 ```bash
 cp docker-compose/.env.example docker-compose/.env
-docker compose -f docker-compose/docker-compose.yml up -d
+docker compose -f docker-compose/docker-compose.yml up -d --build
 ```
 
 ## Uso
