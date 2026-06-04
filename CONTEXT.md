@@ -14,7 +14,7 @@
 | **Linguagem**  | Python 3.10                                                    |
 | **Framework**  | Flask 2.3.2                                                    |
 | **Banco**      | MySQL (mysql-connector-python, SQL puro — sem ORM)             |
-| **Versão App** | 1.0.3 (declarada nos metadados do Prometheus)                  |
+| **Versão App** | 1.0.4 (declarada nos metadados do Prometheus)                  |
 | **Imagem Hub** | `alissondrs/app-web` (Docker Hub público)                      |
 | **Propósito**  | Aprendizado de CRUD, containerização e observabilidade         |
 
@@ -157,7 +157,7 @@ Todas lidas pelo `app.py` e `db_mysql.py` via `os.environ`:
 ## Métricas Prometheus
 
 **Endpoint:** `/metrics`  
-**Info registrada:** `app_info{version="1.0.3"}`  
+**Info registrada:** `app_info{version="1.0.4"}`  
 **Intervalo de scrape:** 15s (por job), global default 5s
 
 Cada endpoint registra 4 métricas customizadas:
@@ -212,14 +212,14 @@ Em Docker Compose, o arquivo é montado como volume: `./app.log:/app/app.log`
 
 ```bash
 # Build
-docker build -t alissondrs/app-web .
+docker build -t alissondrs/app-web:1.0.4 .
 
 # Run (requer banco externo)
 docker run \
   -e DB_HOST=... -e DB_PORT=3306 \
   -e APP_USER=app-user -e APP_PASSWORD=01senha \
   -e DB_NAME=appdb \
-  --rm -p 8080:8080 alissondrs/app-web
+  --rm -p 8080:8080 alissondrs/app-web:1.0.4
 ```
 
 ---
@@ -262,7 +262,7 @@ docker-compose up -d
 
 ### App Deployment (`k8s/kubernetes/deployment/app-web.yaml`)
 - Kind: Deployment | Réplicas: 1
-- Imagem: `alissondrs/app-web:0.0.2`
+- Imagem: `alissondrs/app-web:1.0.4`
 - Porta: 8080
 - Liveness + Readiness Probe: `GET /health` | initialDelay: 30s | period: 10s
 - Service: ClusterIP na porta 8080

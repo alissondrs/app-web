@@ -35,7 +35,7 @@ python -m unittest discover -s tests -p 'test_*.py'
 ## Docker
 
 ```bash
-docker build . --tag alissondrs/app-web
+docker build . --tag alissondrs/app-web:1.0.4
 
 docker run \
   -e APP_USER="$APP_USER" \
@@ -46,7 +46,7 @@ docker run \
   --rm \
   --publish 8080:8080 \
   --network=host \
-  alissondrs/app-web
+  alissondrs/app-web:1.0.4
 ```
 
 Para subir a stack local com MySQL, Prometheus e Grafana:

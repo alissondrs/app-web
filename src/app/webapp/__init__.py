@@ -9,7 +9,7 @@ from .routes import register_routes
 
 LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s"
 LOG_DATE_FORMAT = "%d/%m/%Y %I:%M:%S %p"
-APP_VERSION = "1.0.3"
+APP_VERSION = "1.0.4"
 
 
 def configure_logging() -> None:
