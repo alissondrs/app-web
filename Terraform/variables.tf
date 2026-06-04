@@ -5,9 +5,9 @@ variable "aws_region" {
 }
 
 variable "aws_profile" {
-  description = "AWS CLI profile used by Terraform"
+  description = "AWS CLI profile used by Terraform (leave null to use the default credential chain)"
   type        = string
-  default     = "alissondrs"
+  default     = null
 }
 
 variable "project_name" {
