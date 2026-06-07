@@ -1,22 +1,22 @@
 # Project Context: app-web
 
-> Arquivo de contexto gerado automaticamente para uso com agentes de IA.
+> Arquivo de contexto gerado para uso com agentes de IA.
 > Projeto de estudo de CRUD com Flask, MySQL, Docker, Kubernetes e stack de observabilidade.
 
 ---
 
 ## Visão Geral
 
-| Campo          | Valor                                                          |
-|----------------|----------------------------------------------------------------|
-| **Nome**       | app-web                                                        |
-| **Tipo**       | REST API educacional — operações CRUD                          |
-| **Linguagem**  | Python 3.10                                                    |
-| **Framework**  | Flask 2.3.2                                                    |
-| **Banco**      | MySQL (mysql-connector-python, SQL puro — sem ORM)             |
-| **Versão App** | 1.0.4 (declarada nos metadados do Prometheus)                  |
-| **Imagem Hub** | `alissondrs/app-web` (Docker Hub público)                      |
-| **Propósito**  | Aprendizado de CRUD, containerização e observabilidade         |
+| Campo          | Valor                                                              |
+|----------------|--------------------------------------------------------------------|
+| **Nome**       | app-web                                                            |
+| **Tipo**       | REST API educacional — operações CRUD                              |
+| **Linguagem**  | Python 3.10                                                        |
+| **Framework**  | Flask 2.3.2                                                        |
+| **Banco**      | MySQL (mysql-connector-python, SQL puro — sem ORM)                 |
+| **Versão App** | 1.0.4 (declarada em `APP_VERSION` em `webapp/__init__.py`)         |
+| **Imagem Hub** | `alissondrs/app-web` (Docker Hub público)                          |
+| **Propósito**  | Aprendizado de CRUD, containerização e observabilidade             |
 
 ---
 
@@ -24,62 +24,51 @@
 
 ```
 app-web/
-├── Dockerfile                          # Build da app Flask, porta 8080
-├── README.md                           # Guia principal de uso local, Docker e API
-├── CONTEXT.md                          # Este arquivo
+├── Dockerfile                              # Build single-stage, python:3.10-slim, porta 8080
+├── README.md                               # Docs de uso com exemplos curl (em PT-BR)
+├── CONTEXT.md                              # Este arquivo
 ├── .gitignore
-├── Terraform/                         # Base Terraform para AWS (VPC, subnets, SG, EKS)
-│   ├── README.md
-│   ├── main.tf
-│   ├── provider.tf
-│   ├── variables.tf
-│   └── modules/
 ├── src/
 │   └── app/
-│       ├── app.py                      # Entry point da aplicação
-│       ├── script.sh                   # Script de carga/teste de performance
-│       ├── requirements.txt            # Dependências Python do backend
-│       └── mysql_scripts/
-│           ├── db_mysql.py             # Compat wrapper para conexão com MySQL
-│           └── mysql.sh                # Script shell para seed do banco
-│       └── webapp/
-│           ├── __init__.py             # Criação da app, logging, CORS e métricas
-│           ├── db.py                   # Conexão e erros de banco
-│           ├── repository.py           # Operações SQL
-│           ├── routes.py               # Rotas Flask
-│           └── validation.py           # Validação de payload
-├── tests/
-│   └── test_app.py                     # Testes HTTP básicos com unittest
+│       ├── app.py                          # Entrypoint: chama create_app() do pacote webapp
+│       ├── requirements.txt                # 6 dependências Python
+│       ├── script.sh                       # Script de carga/teste de performance
+│       ├── mysql_scripts/
+│       │   ├── db_mysql.py                 # Re-exporta connection_db de webapp.db
+│       │   └── mysql.sh                    # Script shell para seed do banco
+│       └── webapp/                         # Pacote principal da aplicação
+│           ├── __init__.py                 # Factory create_app() + logging + métricas
+│           ├── db.py                       # connection_db() + exceções customizadas
+│           ├── routes.py                   # register_routes() — todos os endpoints Flask
+│           ├── repository.py               # Queries SQL (fetch, create, update, delete)
+│           └── validation.py               # parse_user_payload() + InvalidUserPayload
 ├── docker-compose/
-│   ├── .env                            # Variáveis locais da stack
-│   ├── .env.example                    # Exemplo de ambiente para compose
-│   ├── docker-compose.yml              # Stack local: app, db, prometheus, node-exporter, grafana
-│   ├── prometheus.yml                  # Configuração de scraping do Prometheus
-│   ├── datasources.yaml                # Datasource Grafana → Prometheus via service discovery
-│   ├── dashboards.yaml                 # Provisionamento de dashboards do Grafana
-│   ├── dashboard.json                  # Dashboard JSON com 5 painéis
+│   ├── .env                                # Variáveis de ambiente (credenciais em plaintext)
+│   ├── docker-compose.yml                  # 5 serviços: app, db, prometheus, node-exporter, grafana
+│   ├── prometheus.yml                      # Configuração de scraping do Prometheus
+│   ├── datasources.yaml                    # Datasource Grafana → Prometheus
+│   ├── dashboards.yaml                     # Provisionamento de dashboards do Grafana
+│   ├── dashboard.json                      # Dashboard JSON com 5 painéis
 │   ├── initdb/
-│   │   └── initi.sql                   # SQL de inicialização do MySQL no compose
-│   ├── grafana-storage/                # Dados persistentes do Grafana
-│   ├── prometheus-data/                # Dados persistentes do Prometheus
-│   └── README.MD                       # Guia da stack local com Docker Compose
+│   │   └── initi.sql                       # SQL de inicialização do banco
+│   ├── grafana-storage/                    # Dados persistentes do Grafana
+│   └── prometheus-data/                    # Dados persistentes do Prometheus
 └── k8s/
     └── kubernetes/
-        ├── app/
-        │   ├── configmap.yaml          # ConfigMap da aplicação
-        │   ├── deployment.yaml         # Deployment da app 1.0.4
-        │   ├── secret.yaml             # Secret com senha da app
-        │   └── service.yaml            # Service ClusterIP da app
         ├── cluster/
-        │   └── cluster.yaml            # Cluster k3d: 2 servidores + 3 agentes
-        ├── mysql/
-        │   ├── configmap-initdb.yaml   # SQL de inicialização do MySQL
-        │   ├── secret.yaml             # Secret do MySQL
-        │   ├── service-headless.yaml   # Headless Service para StatefulSet
-        │   ├── service.yaml            # Service ClusterIP do MySQL
-        │   └── statefulset.yaml        # StatefulSet MySQL fixado em mysql:5.7.44
-        ├── kustomization.yaml          # Entrada única para apply -k
-        └── README.MD                   # Guia de deploy local em k3d/k3s
+        │   └── cluster.yaml                # Cluster k3d: 2 servidores + 3 agentes
+        ├── kustomization.yaml              # Kustomize — lista todos os manifests
+        ├── app/
+        │   ├── deployment.yaml             # Deployment app-web (réplicas: 1)
+        │   ├── service.yaml                # Service app-web (ClusterIP :8080)
+        │   ├── configmap.yaml              # ConfigMap app-web-config (vars de ambiente)
+        │   └── secret.yaml                 # Secret app-web-secrets (APP_PASSWORD)
+        └── mysql/
+            ├── statefulset.yaml            # StatefulSet mysql + PVC 1Gi
+            ├── service.yaml                # Service mysql (ClusterIP :3306)
+            ├── service-headless.yaml       # Service mysql-headless (headless :3306)
+            ├── configmap-initdb.yaml       # ConfigMap mysql-initdb (SQL de init)
+            └── secret.yaml                 # Secret mysql-secrets (senhas do MySQL)
 ```
 
 ---
@@ -90,20 +79,38 @@ app-web/
 | Pacote                          | Versão   | Uso                                    |
 |---------------------------------|----------|----------------------------------------|
 | Flask                           | 2.3.2    | Framework web                          |
+| Werkzeug                        | 2.3.7    | WSGI utilities (dependência do Flask)  |
 | mysql-connector-python          | 8.0.33   | Driver MySQL (SQL puro)                |
 | flask-cors                      | 4.0.0    | CORS habilitado para todas as origens  |
 | prometheus-flask-exporter       | 0.23.0   | Exportação de métricas `/metrics`      |
 | requests                        | 2.31.0   | Cliente HTTP                           |
 
 ### Infraestrutura / Serviços
-| Serviço         | Imagem                    | Porta | Função                              |
-|-----------------|---------------------------|-------|-------------------------------------|
-| app             | alissondrs/app-web:1.0.4  | 8080  | API Flask                           |
-| db (compose)    | mysql:5.7                 | 3306  | Banco de dados                      |
-| mysql (k8s)     | mysql:5.7.44              | 3306  | Banco de dados (StatefulSet)        |
-| prometheus      | prom/prometheus           | 9090  | Coleta de métricas                  |
-| node-exporter   | prom/node-exporter        | 9100  | Métricas de sistema                 |
-| grafana         | grafana/grafana           | 3000  | Visualização (anon access = Admin)  |
+| Serviço         | Imagem                      | Porta | Função                              |
+|-----------------|-----------------------------|-------|-------------------------------------|
+| app (compose)   | alissondrs/app-web:local    | 8080  | API Flask (build local)             |
+| app (k8s)       | alissondrs/app-web:1.0.4    | 8080  | API Flask                           |
+| db (compose)    | mysql:5.7                   | 3306  | Banco de dados                      |
+| mysql (k8s)     | mysql:5.7.44                | 3306  | Banco de dados (StatefulSet)        |
+| prometheus      | prom/prometheus             | 9090  | Coleta de métricas                  |
+| node-exporter   | prom/node-exporter          | 9100  | Métricas de sistema                 |
+| grafana         | grafana/grafana             | 3000  | Visualização (anon access = Admin)  |
+
+---
+
+## Estrutura Interna do Código (pacote `webapp/`)
+
+O `app.py` é apenas um entrypoint que chama `create_app()`. Toda a lógica está no pacote `src/app/webapp/`:
+
+| Arquivo           | Responsabilidade                                                                 |
+|-------------------|----------------------------------------------------------------------------------|
+| `__init__.py`     | `create_app()` — configura logging, CORS, PrometheusMetrics e registra rotas     |
+| `db.py`           | `connection_db()` — conecta ao MySQL; lança `DatabaseConfigurationError` ou `DatabaseConnectionError` em falha |
+| `routes.py`       | `register_routes(app, metrics)` — define todos os endpoints com decorators de métricas |
+| `repository.py`   | Funções SQL: `fetch_user_by_id`, `fetch_user_by_name`, `create_user`, `update_user`, `delete_user`, `fetch_all_users` |
+| `validation.py`   | `parse_user_payload(payload)` — valida e retorna `(nome, idade)`; lança `InvalidUserPayload` |
+
+> `mysql_scripts/db_mysql.py` apenas re-exporta `connection_db` de `webapp.db`.
 
 ---
 
@@ -120,7 +127,15 @@ CREATE TABLE usuarios (
 );
 ```
 
-**Credenciais padrão** (usadas em todos os ambientes — não use em produção):
+**Queries SQL** (todas em `repository.py` usando `%s` — prepared statements via mysql-connector):
+- `SELECT * FROM usuarios WHERE id = %s`
+- `SELECT * FROM usuarios WHERE nome = %s`
+- `INSERT INTO usuarios (nome, idade) VALUES (%s, %s)`
+- `UPDATE usuarios SET nome = %s, idade = %s WHERE id = %s`
+- `DELETE FROM usuarios WHERE id = %s`
+- `SELECT * FROM usuarios`
+
+**Credenciais padrão** (não use em produção):
 
 | Variável              | Valor      |
 |-----------------------|------------|
@@ -130,15 +145,7 @@ CREATE TABLE usuarios (
 | `MYSQL_ROOT_PASSWORD` | 01senha    |
 | `DB_PORT`             | 3306       |
 | `DB_HOST` (compose)   | db         |
-| `DB_HOST` (k8s)       | mysql |
-
-**Módulo de conexão principal:** `src/app/webapp/db.py` — função `connection_db()`
-- Lê variáveis de ambiente obrigatórias
-- Usa `auth_plugin='mysql_native_password'`
-- Lança erros explícitos para configuração ausente ou indisponibilidade do banco
-
-**Compatibilidade legada:** `src/app/mysql_scripts/db_mysql.py`
-- Reexporta `connection_db` para manter compatibilidade com o layout antigo
+| `DB_HOST` (k8s)       | mysql      |
 
 ---
 
@@ -146,60 +153,66 @@ CREATE TABLE usuarios (
 
 Base URL: `http://localhost:8080`
 
-| Método   | Rota            | Descrição                        | Sucesso | Erros          |
-|----------|-----------------|----------------------------------|---------|----------------|
-| `GET`    | `/health`       | Health check                     | 200     | 500            |
-| `GET`    | `/user/<id>`    | Buscar usuário por ID            | 200     | 404            |
-| `GET`    | `/users/`       | Listar todos os usuários         | 200     | —              |
-| `POST`   | `/user/`        | Criar usuário                    | 201     | 400, 409       |
-| `PUT`    | `/user/<id>`    | Atualizar usuário                | 200     | 404            |
-| `DELETE` | `/user/<id>`    | Deletar usuário                  | 204     | 404            |
+| Método   | Rota             | Endpoint Flask | Descrição                        | Sucesso | Erros          |
+|----------|------------------|----------------|----------------------------------|---------|----------------|
+| `GET`    | `/health`        | `health`       | Health check (abre conexão DB)   | 200     | 500            |
+| `GET`    | `/user/<id>`     | `read`         | Buscar usuário por ID            | 200     | 404, 500       |
+| `GET`    | `/users/`        | `read_all`     | Listar todos os usuários         | 200     | 500            |
+| `POST`   | `/user/`         | `create`       | Criar usuário                    | 201     | 400, 409, 500  |
+| `PUT`    | `/user/<id>`     | `update`       | Atualizar usuário                | 200     | 400, 404, 500  |
+| `DELETE` | `/user/<id>`     | `delete`       | Deletar usuário                  | 204     | 404, 500       |
 
 **Corpo das requisições POST/PUT:**
 ```json
 { "nome": "Alice", "idade": 28 }
 ```
 
-**Endpoint de métricas** (auto-gerado pelo prometheus-flask-exporter):
+**Validação** (via `validation.py`): `nome` deve ser string não-vazia; `idade` deve ser convertível para `int`. Payload inválido retorna 400.
+
+**Endpoint de métricas** (auto-gerado):
 - `GET /metrics` — formato Prometheus text
 
 ---
 
 ## Variáveis de Ambiente
 
-Todas lidas pelo `app.py` e `db_mysql.py` via `os.environ`:
+Todas lidas via `os.getenv()` em `webapp/db.py`. Ausência lança `DatabaseConfigurationError`.
 
-| Variável       | Obrigatório | Descrição                         |
-|----------------|-------------|-----------------------------------|
-| `DB_HOST`      | Sim         | Host do MySQL                     |
-| `DB_PORT`      | Sim         | Porta do MySQL                    |
-| `DB_NAME`      | Sim         | Nome do banco                     |
-| `APP_USER`     | Sim         | Usuário do banco                  |
-| `APP_PASSWORD` | Sim         | Senha do banco                    |
+| Variável       | Obrigatório | Descrição                              |
+|----------------|-------------|----------------------------------------|
+| `DB_HOST`      | Sim         | Host do MySQL                          |
+| `DB_PORT`      | Sim         | Porta do MySQL                         |
+| `DB_NAME`      | Sim         | Nome do banco                          |
+| `APP_USER`     | Sim         | Usuário do banco                       |
+| `APP_PASSWORD` | Sim         | Senha do banco                         |
 | `FLASK_APP`    | Sim         | Configurado no Dockerfile: `/app/app.py` |
 
 ---
 
 ## Métricas Prometheus
 
-**Endpoint:** `/metrics`  
+**Endpoint:** `/metrics` | **Group by:** `endpoint`  
 **Info registrada:** `app_info{version="1.0.4"}`  
-**Intervalo de scrape:** 15s (por job), global default 5s
+**Intervalo de scrape:** 15s por job, 5s global default
 
-Cada endpoint registra 4 métricas customizadas:
-- **Counter** `{endpoint}_total` — total de requisições
-- **Gauge** `{endpoint}_status` — status atual
-- **Summary** `{endpoint}_summary` — duração (resumo)
-- **Histogram** `{endpoint}_histogram` — duração (histograma)
+Cada endpoint registra 4 métricas (nomes reais definidos em `routes.py`):
 
-Labels: `status`, `route`, `endpoint`, `method`
+| Endpoint Flask | Counter                  | Gauge                       | Summary                    | Histogram                    |
+|----------------|--------------------------|-----------------------------|----------------------------|------------------------------|
+| `health`       | `app_health_check_total` | `app_health_check_status`   | `app_health_check_summary` | `app_health_check_histogram` |
+| `read`         | `app_read_user`          | `app_read_user_status`      | `app_read_user_summary`    | `app_read_user_histogram`    |
+| `create`       | `app_create_user`        | `app_create_user_status`    | `app_create_user_summary`  | `app_create_user_histogram`  |
+| `update`       | `app_update_user`        | `app_update_user_status`    | `app_update_user_summary`  | `app_update_user_histogram`  |
+| `delete`       | `app_delete_user`        | `app_delete_user_status`    | `app_delete_user_summary`  | `app_delete_user_histogram`  |
+| `read_all`     | `read_all_users`         | `read_all_users_status`     | `read_all_users_summary`   | `read_all_users_histogram`   |
+
+Labels por métrica: `status`, `route`, `endpoint`, `method`
 
 ---
 
 ## Observabilidade — Grafana Dashboard
 
-**Dashboard:** `app-web dash`  
-**Refresh:** 30s | **Range:** últimos 5 minutos
+**Dashboard:** `app-web dash` | **Refresh:** 30s | **Range:** últimos 5 minutos
 
 | Painel            | Tipo           | Query principal                                                                         |
 |-------------------|----------------|-----------------------------------------------------------------------------------------|
@@ -209,18 +222,18 @@ Labels: `status`, `route`, `endpoint`, `method`
 | Latência          | Time Series    | `rate(...duration_seconds_sum[5m]) / rate(...duration_seconds_count[5m])` + p95         |
 | Taxa de erros     | Time Series    | `sum(rate(flask_http_request_total{status=~"5.."}[1m])) / sum(rate(...[1m])) * 100`    |
 
-**Datasource Grafana → Prometheus:** `http://prometheus:9090` (service discovery na rede do compose)
+**Datasource Grafana → Prometheus:** `http://prometheus:9090` (por nome de serviço na rede Docker)
 
 ---
 
 ## Logging
 
-| Campo    | Valor                                                          |
-|----------|----------------------------------------------------------------|
-| Módulo   | Python `logging`                                               |
-| Arquivo  | `app.log` (em `/app/` no container)                            |
-| Nível    | `INFO`                                                         |
-| Formato  | `%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s` |
+| Campo    | Valor                                                                  |
+|----------|------------------------------------------------------------------------|
+| Módulo   | Python `logging` (configurado em `webapp/__init__.py::configure_logging`) |
+| Arquivo  | `app.log` (relativo ao CWD `/app` no container)                        |
+| Nível    | `INFO`                                                                 |
+| Formato  | `%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s`      |
 
 Em Docker Compose, o arquivo é montado como volume: `./app.log:/app/app.log`
 
@@ -228,25 +241,26 @@ Em Docker Compose, o arquivo é montado como volume: `./app.log:/app/app.log`
 
 ## Docker — Build
 
-**Dockerfile:**
+**Dockerfile** (single-stage):
 - Base: `python:3.10-slim`
 - Workdir: `/app`
-- Copia `requirements.txt` antes para melhorar cache de build
-- Instala dependências Python e `curl`
-- Copia `./src/app` → `/app`
+- Instala `requirements.txt` de `/tmp/` antes de copiar o código
+- Instala `curl` via apt-get
+- Copia: `./src/app` → `/app`
 - Porta exposta: `8080`
 - Entrypoint: `flask run --host 0.0.0.0 --port 8080`
+- Env extras: `PYTHONDONTWRITEBYTECODE=1`, `PYTHONUNBUFFERED=1`
 
 ```bash
 # Build
-docker build -t alissondrs/app-web:1.0.4 .
+docker build -t alissondrs/app-web .
 
 # Run (requer banco externo)
 docker run \
   -e DB_HOST=... -e DB_PORT=3306 \
   -e APP_USER=app-user -e APP_PASSWORD=01senha \
   -e DB_NAME=appdb \
-  --rm -p 8080:8080 alissondrs/app-web:1.0.4
+  --rm -p 8080:8080 alissondrs/app-web
 ```
 
 ---
@@ -257,104 +271,104 @@ docker run \
 **Rede:** `app-net` (bridge, subnet `172.28.0.0/16`)  
 **Volume nomeado:** `mysql-data` (persistência MySQL)
 
+**Serviços:**
+
+| Serviço       | Imagem                       | Porta | Notas                                    |
+|---------------|------------------------------|-------|------------------------------------------|
+| `db`          | mysql:5.7                    | 3306  | healthcheck com mysqladmin ping          |
+| `prometheus`  | prom/prometheus              | 9090  | IP estático `172.28.1.2` na rede         |
+| `node-exporter`| prom/node-exporter          | 9100  | —                                        |
+| `grafana`     | grafana/grafana              | 3000  | Anon login habilitado, role Admin        |
+| `app`         | alissondrs/app-web:local     | 8080  | Build local, depends_on db (healthy)     |
+
+**Health checks:**
+- `db`: `mysqladmin ping -h 127.0.0.1 -uroot` | Interval: 5s | Timeout: 3s | Retries: 15 | Start: 15s
+- `app`: `curl -f http://localhost:8080/health` | Interval: 3s | Timeout: 1s | Retries: 3
+
 ```bash
 cd docker-compose
-cp .env.example .env
-docker compose up -d --build
+docker-compose up -d
 
 # Portas disponíveis:
-# App:          http://localhost:8080
-# Prometheus:   http://localhost:9090
-# Grafana:      http://localhost:3000
-# MySQL:        localhost:3306
+# App:           http://localhost:8080
+# Prometheus:    http://localhost:9090
+# Grafana:       http://localhost:3000
+# MySQL:         localhost:3306
 # node-exporter: localhost:9100
 ```
-
-**Health check da app (compose):**
-- `curl -f http://localhost:8080/health` | Interval: 3s | Timeout: 1s | Retries: 3
-
-**Melhorias aplicadas no compose:**
-- app construída localmente a partir do branch atual
-- `depends_on` da app condicionado à saúde do MySQL
-- datasource do Grafana usando discovery por nome de serviço
 
 ---
 
 ## Kubernetes
 
-**Ferramenta de cluster:** k3d (k3s em Docker)
+**Ferramenta de cluster:** k3d (k3s em Docker)  
+**Deploy via:** Kustomize (`k8s/kubernetes/kustomization.yaml`)
 
 ### Cluster (`k8s/kubernetes/cluster/cluster.yaml`)
-- API: `k3d.io/v1alpha2`
-- Nome: `k8s-cluster`
-- Servidores (control plane): 2
-- Agentes (workers): 3
-- Portas mapeadas: 80:80 e 443:443 → server:0
+- API: `k3d.io/v1alpha2` | Nome: `k8s-cluster`
+- Servidores (control plane): 2 | Agentes (workers): 3
+- Portas mapeadas: `80:80` e `443:443` → server:0
 
 ### App (`k8s/kubernetes/app/`)
-- Kind: Deployment | Réplicas: 1
-- Imagem: `alissondrs/app-web:1.0.4`
-- Configuração não sensível em `ConfigMap`
-- Segredo da aplicação em `Secret`
-- `startupProbe`, `readinessProbe` e `livenessProbe` em `GET /health`
-- Service: `app-web` (ClusterIP, porta 8080)
 
-### MySQL (`k8s/kubernetes/mysql/`)
-- Kind: StatefulSet | Réplicas: 1
-- Imagem: `mysql:5.7.44`
-- PVC: `mysql-data` | ReadWriteOnce | 1Gi
-- Headless Service: `mysql-headless`
-- Service interno para a app: `mysql`
-- Segredos em `Secret`
+**Deployment** (`deployment.yaml`):
+- Nome: `app-web` | Réplicas: 1
+- Imagem: `alissondrs/app-web:1.0.4` | `imagePullPolicy: IfNotPresent`
+- Vars de ambiente: via `configMapRef: app-web-config` + `secretKeyRef: app-web-secrets` (APP_PASSWORD)
+- startupProbe: `GET /health` | failureThreshold: 20 | period: 5s
+- readinessProbe: `GET /health` | initialDelay: 5s | period: 10s | timeout: 2s
+- livenessProbe: `GET /health` | initialDelay: 15s | period: 20s | timeout: 2s
+- Resources: requests `100m/128Mi` | limits `300m/256Mi`
 
-### Inicialização do banco (k8s)
-- ConfigMap `mysql-initdb` com SQL inline:
-  ```sql
-  USE appdb;
-  CREATE TABLE IF NOT EXISTS usuarios (id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(255), idade INT);
-  GRANT ALL PRIVILEGES ON appdb.* TO 'app-user'@'%';
-  FLUSH PRIVILEGES;
-  ```
+**Service** (`service.yaml`): `app-web` | ClusterIP | porta 8080
 
-```bash
-# Deploy completo
-k3d cluster create --config k8s/kubernetes/cluster/cluster.yaml
-kubectl apply -k k8s/kubernetes
-kubectl port-forward svc/app-web 8080:8080
+**ConfigMap** (`configmap.yaml`): `app-web-config`
+```
+DB_HOST: mysql
+DB_PORT: "3306"
+DB_NAME: appdb
+APP_USER: app-user
 ```
 
----
+**Secret** (`secret.yaml`): `app-web-secrets`
+```
+APP_PASSWORD: 01senha
+```
 
-## Terraform
+### MySQL (`k8s/kubernetes/mysql/`)
 
-**Pasta:** `Terraform/`
+**StatefulSet** (`statefulset.yaml`):
+- Nome: `mysql` | serviceName: `mysql-headless` | Réplicas: 1
+- Imagem: `mysql:5.7.44` | `imagePullPolicy: IfNotPresent`
+- Secrets: `mysql-secrets` (MYSQL_ROOT_PASSWORD, MYSQL_PASSWORD)
+- PVC: `mysql-data` | ReadWriteOnce | 1Gi
+- ConfigMap montado em `/docker-entrypoint-initdb.d`
+- startupProbe/readiness/liveness: tcpSocket porta 3306
+- Resources: requests `100m/256Mi` | limits `500m/512Mi`
 
-Base Terraform voltada a uma infraestrutura AWS reutilizável para a `app-web` e futuras aplicações.
+**Services:**
+- `mysql` (`service.yaml`): ClusterIP | porta 3306 (acesso interno)
+- `mysql-headless` (`service-headless.yaml`): headless (`clusterIP: None`) | porta 3306
 
-**Recursos principais:**
-- VPC com DNS habilitado
-- 2 subnets públicas
-- 2 subnets privadas
-- 1 NAT Gateway por subnet pública
-- Route tables públicas e privadas
-- Security group base para EKS
-- Cluster EKS com node group gerenciado
+**ConfigMap** (`configmap-initdb.yaml`): `mysql-initdb` com `init.sql`:
+```sql
+USE appdb;
+CREATE TABLE IF NOT EXISTS usuarios (...);
+GRANT ALL PRIVILEGES ON appdb.* TO 'app-user'@'%';
+FLUSH PRIVILEGES;
+```
 
-**Melhorias aplicadas:**
-- `aws_region` e `aws_profile` parametrizados
-- seleção de AZs baseada na região configurada
-- NAT Gateway movido para as subnets públicas
-- correção das IAM roles do EKS (control plane e node group)
-- tags de subnet para integração com EKS / load balancers
-- tipagem melhor em variáveis e rotas
-- lockfile `.terraform.lock.hcl`
+**Secret** (`secret.yaml`): `mysql-secrets`
+```
+MYSQL_ROOT_PASSWORD: 01senha
+MYSQL_PASSWORD: 01senha
+```
 
-**Validação executada:**
 ```bash
-cd Terraform
-terraform fmt -recursive
-terraform init -backend=false
-terraform validate
+# Deploy completo via Kustomize
+k3d cluster create app-web --config k8s/kubernetes/cluster/cluster.yaml
+kubectl apply -k k8s/kubernetes/
+kubectl port-forward svc/app-web 8080:8080
 ```
 
 ---
@@ -378,7 +392,7 @@ Loop infinito executando:
 
 | Categoria          | Status                                                             |
 |--------------------|--------------------------------------------------------------------|
-| Testes             | ✅ `unittest` com cobertura básica de rotas principais             |
+| Testes             | ❌ Nenhum (sem pytest, unittest, etc.)                             |
 | CI/CD              | ❌ Nenhum pipeline configurado                                     |
 | Linting/Formatação | ❌ Sem flake8, pylint, black, etc.                                 |
 | Autenticação na API| ❌ Todos os endpoints públicos sem auth                            |
@@ -386,7 +400,6 @@ Loop infinito executando:
 | ORM                | ❌ SQL puro com mysql-connector-python                             |
 | Paginação          | ❌ `/users/` retorna todos os registros                            |
 | Migrations         | ❌ Schema gerenciado via scripts SQL avulsos                       |
-| Secrets Management | ⚠️ Melhorado no k8s com `Secret`, mas ainda simples no compose/Terraform |
 | Frontend           | ❌ Apenas API backend                                              |
 
 ---
@@ -395,19 +408,19 @@ Loop infinito executando:
 
 > Este projeto é **educacional** e não deve ser usado em produção sem as devidas correções.
 
-- Credenciais hardcoded em `docker-compose/.env` e manifests Kubernetes
-- Sem autenticação na API (qualquer cliente acessa todos os endpoints)
-- SQL raw ainda é usado, mas as rotas principais usam parâmetros no mysql-connector
+- Credenciais em plaintext em `docker-compose/.env` e nos Secrets k8s (`stringData`)
+- Sem autenticação na API
 - Grafana com acesso anônimo habilitado e role Admin
 - Sem HTTPS em nenhum ambiente
 - Imagem Docker pública no Docker Hub
+- SQL injection mitigado: repository usa prepared statements (`%s` via mysql-connector)
 
 ---
 
 ## Referência Rápida
 
 ```bash
-# Testar health check
+# Health check
 curl http://localhost:8080/health
 
 # Listar usuários
