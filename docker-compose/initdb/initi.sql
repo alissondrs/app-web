@@ -1,16 +1,14 @@
 -- Criação do database
 CREATE DATABASE IF NOT EXISTS appdb;
 
--- Criação do usuário e concessão de privilégios
-CREATE USER 'app-user'@'%' IDENTIFIED BY '01senha';
-GRANT ALL PRIVILEGES ON *.* TO 'app-user'@'%';
+-- O usuário e a senha são criados pelo entrypoint do MySQL a partir do .env.
+GRANT ALL PRIVILEGES ON appdb.* TO 'app-user'@'%';
 FLUSH PRIVILEGES;
 
 -- Criação da tabela de usuários
-USE DATABASE appdb;
+USE appdb;
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255),
     idade INT
 );
-

@@ -1,0 +1,6 @@
+# The image only needs the application source and its dependency file.
+*
+!Dockerfile
+!src/
+!src/app/
+!src/app/**

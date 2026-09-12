@@ -2,3 +2,6 @@ __py*
 docker-compose\data\*
 *.log
 *venv*
+.terraform/
+*.tfstate
+*.tfstate.*

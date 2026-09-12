@@ -1,0 +1,18 @@
+name: app-web
+runtime: python
+python_version: '3.10'
+test_command: python -m unittest discover -s tests -p 'test_*.py'
+lint_command: ruff check src tests
+dependency_audit_command: pip-audit -r src/app/requirements.txt
+dockerfile: Dockerfile
+image: alissondrs/app-web
+healthcheck: http://localhost:8080/health
+deploy:
+  platform: kubernetes
+  environment: lab
+  manifest: deploy/kubernetes
+  rollback: kubectl rollout undo deployment/app-web
+secrets:
+  - DOCKERHUB_TOKEN
+  - APP_PASSWORD
+  - MYSQL_ROOT_PASSWORD
