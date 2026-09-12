@@ -3,6 +3,7 @@ name: Build and publish image
 on:
   push:
     branches:
+      - develop
       - main
   workflow_dispatch:
     inputs:
@@ -38,7 +39,8 @@ jobs:
         with:
           images: ${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,format=long,prefix=sha-
+            type=raw,value=develop-sha-${{ github.sha }},enable=${{ github.ref_name == 'develop' }}
+            type=raw,value=prod-sha-${{ github.sha }},enable=${{ github.ref_name == 'main' }}
             type=raw,value=${{ inputs.version }},enable=${{ inputs.version != '' }}
       - name: Build and push image
         uses: docker/build-push-action@v6

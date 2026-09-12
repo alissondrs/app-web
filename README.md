@@ -63,10 +63,11 @@ docker compose -f docker-compose/docker-compose.yml up -d --build
 
 ## CI/CD
 
-Pull requests executam testes, lint, auditoria de dependências, scan de
-segredos e build Docker pelo workflow `.github/workflows/ci.yml`. Pushes na
-`main` publicam uma imagem imutável no Docker Hub pelo workflow
-`build-publish.yml`.
+Pull requests para `develop` executam testes, lint, auditoria de dependências,
+scan de segredos e build Docker pelo workflow `.github/workflows/ci.yml`.
+Depois do merge em `develop`, a imagem de validação é publicada com uma tag
+`develop-sha-*`. O fluxo de produção exige um segundo PR de `develop` para
+`main`; somente após esse merge a imagem recebe uma tag `prod-sha-*`.
 
 O deploy Kubernetes do ambiente lab é documentado em
 [`deploy/harness/README.md`](deploy/harness/README.md). Os secrets devem ser

@@ -11,13 +11,14 @@ ser criados na conta Harness, nunca versionados neste repositório.
 
 ## Pipeline recomendado
 
-1. Receber `IMAGE_TAG` por webhook ou execução manual.
-2. Validar que a imagem existe no Docker Hub.
-3. Aplicar os manifests em `deploy/kubernetes` substituindo a tag da imagem.
+1. Receber `IMAGE_TAG` por webhook ou execução manual após merge em `develop`.
+2. Validar que a imagem `develop-sha-*` existe no Docker Hub.
+3. Aplicar os manifests em `deploy/kubernetes` no ambiente `lab`.
 4. Aguardar `Deployment/app-web` ficar disponível.
 5. Executar smoke test em `/health`.
-6. Exigir aprovação manual antes de qualquer ambiente futuro.
-7. Em falha, executar `kubectl rollout undo deployment/app-web`.
+6. Promover somente após o PR `develop` → `main` ser aprovado e mesclado.
+7. No pipeline de produção, consumir apenas uma imagem `prod-sha-*`.
+8. Em falha, executar `kubectl rollout undo deployment/app-web`.
 
 O secret `APP_PASSWORD` e os secrets do MySQL devem ser criados pelo Harness
 usando secret references ou previamente no namespace. Não use os antigos
