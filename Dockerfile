@@ -4,11 +4,6 @@ WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    APP_USER= \
-    APP_PASSWORD= \
-    DB_NAME= \
-    DB_HOST= \
-    DB_PORT= \
     FLASK_APP=/app/app.py
 
 COPY ./src/app/requirements.txt /tmp/requirements.txt
