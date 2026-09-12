@@ -12,6 +12,8 @@ O backend foi organizado em modulos menores:
 - `tests/`: validacoes HTTP da API
 - `docker-compose/`: stack local com MySQL, Prometheus e Grafana
 - `k8s/kubernetes/`: manifests para k3d/k3s com `kustomization.yaml`
+- `deploy/kubernetes/`: manifests do deploy Harness sem secrets versionados
+- `.github/workflows/`: CI e publicação da imagem no Docker Hub
 - `Terraform/`: base Terraform para AWS (VPC, subnets, SG e EKS)
 
 ## Rodando localmente
@@ -58,6 +60,18 @@ Para subir a stack local com MySQL, Prometheus e Grafana:
 cp docker-compose/.env.example docker-compose/.env
 docker compose -f docker-compose/docker-compose.yml up -d --build
 ```
+
+## CI/CD
+
+Pull requests executam testes, lint, auditoria de dependências, scan de
+segredos e build Docker pelo workflow `.github/workflows/ci.yml`. Pushes na
+`main` publicam uma imagem imutável no Docker Hub pelo workflow
+`build-publish.yml`.
+
+O deploy Kubernetes do ambiente lab é documentado em
+[`deploy/harness/README.md`](deploy/harness/README.md). Os secrets devem ser
+criados pelo Harness ou diretamente no cluster; não use credenciais em YAML
+versionado.
 
 ## Uso
 

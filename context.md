@@ -16,6 +16,7 @@
 | **Banco**      | MySQL (mysql-connector-python, SQL puro — sem ORM)                 |
 | **Versão App** | 1.0.4 (declarada em `APP_VERSION` em `webapp/__init__.py`)         |
 | **Imagem Hub** | `alissondrs/app-web` (Docker Hub público)                          |
+| **CI/CD**      | GitHub Actions para CI/publicação + Harness CD para o ambiente lab |
 | **Propósito**  | Aprendizado de CRUD, containerização e observabilidade             |
 
 ---
@@ -28,6 +29,9 @@ app-web/
 ├── README.md                               # Docs de uso com exemplos curl (em PT-BR)
 ├── CONTEXT.md                              # Este arquivo
 ├── .gitignore
+├── .github/workflows/                      # CI e publicação da imagem
+├── ci-project.yaml                          # Contrato mínimo de automação
+├── deploy/                                  # Manifests e contrato Harness
 ├── src/
 │   └── app/
 │       ├── app.py                          # Entrypoint: chama create_app() do pacote webapp
@@ -62,13 +66,13 @@ app-web/
         │   ├── deployment.yaml             # Deployment app-web (réplicas: 1)
         │   ├── service.yaml                # Service app-web (ClusterIP :8080)
         │   ├── configmap.yaml              # ConfigMap app-web-config (vars de ambiente)
-        │   └── secret.yaml                 # Secret app-web-secrets (APP_PASSWORD)
+        │   └── (secret criado fora do Git)
         └── mysql/
             ├── statefulset.yaml            # StatefulSet mysql + PVC 1Gi
             ├── service.yaml                # Service mysql (ClusterIP :3306)
             ├── service-headless.yaml       # Service mysql-headless (headless :3306)
             ├── configmap-initdb.yaml       # ConfigMap mysql-initdb (SQL de init)
-            └── secret.yaml                 # Secret mysql-secrets (senhas do MySQL)
+            └── (secret criado fora do Git)
 ```
 
 ---
@@ -78,12 +82,12 @@ app-web/
 ### Backend
 | Pacote                          | Versão   | Uso                                    |
 |---------------------------------|----------|----------------------------------------|
-| Flask                           | 2.3.2    | Framework web                          |
-| Werkzeug                        | 2.3.7    | WSGI utilities (dependência do Flask)  |
-| mysql-connector-python          | 8.0.33   | Driver MySQL (SQL puro)                |
-| flask-cors                      | 4.0.0    | CORS habilitado para todas as origens  |
+| Flask                           | 3.1.3    | Framework web                          |
+| Werkzeug                        | 3.1.6    | WSGI utilities (dependência do Flask)  |
+| mysql-connector-python          | 9.1.0    | Driver MySQL (SQL puro)                |
+| flask-cors                      | 6.0.0    | CORS habilitado para todas as origens  |
 | prometheus-flask-exporter       | 0.23.0   | Exportação de métricas `/metrics`      |
-| requests                        | 2.31.0   | Cliente HTTP                           |
+| requests                        | 2.33.0   | Cliente HTTP                           |
 
 ### Infraestrutura / Serviços
 | Serviço         | Imagem                      | Porta | Função                              |
@@ -330,10 +334,8 @@ DB_NAME: appdb
 APP_USER: app-user
 ```
 
-**Secret** (`secret.yaml`): `app-web-secrets`
-```
-APP_PASSWORD: 01senha
-```
+**Secret:** `app-web-secrets`, criado fora do repositório pelo Harness ou pelo
+operador do cluster.
 
 ### MySQL (`k8s/kubernetes/mysql/`)
 
@@ -358,11 +360,8 @@ GRANT ALL PRIVILEGES ON appdb.* TO 'app-user'@'%';
 FLUSH PRIVILEGES;
 ```
 
-**Secret** (`secret.yaml`): `mysql-secrets`
-```
-MYSQL_ROOT_PASSWORD: 01senha
-MYSQL_PASSWORD: 01senha
-```
+**Secret:** `mysql-secrets`, criado fora do repositório pelo Harness ou pelo
+operador do cluster.
 
 ```bash
 # Deploy completo via Kustomize
@@ -393,7 +392,7 @@ Loop infinito executando:
 | Categoria          | Status                                                             |
 |--------------------|--------------------------------------------------------------------|
 | Testes             | ❌ Nenhum (sem pytest, unittest, etc.)                             |
-| CI/CD              | ❌ Nenhum pipeline configurado                                     |
+| CI/CD              | ✅ GitHub Actions + Harness CD documentados e configurados no piloto |
 | Linting/Formatação | ❌ Sem flake8, pylint, black, etc.                                 |
 | Autenticação na API| ❌ Todos os endpoints públicos sem auth                            |
 | HTTPS              | ❌ Somente HTTP                                                    |
