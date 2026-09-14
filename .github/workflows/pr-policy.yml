@@ -1,0 +1,72 @@
+name: PR policy
+
+on:
+  pull_request_target:
+
+# The check never checks out the pull request head: it inspects only the
+# head/base refs of the event payload and runs trusted logic embedded here.
+# No third-party actions, no dependency installation, no secrets are consumed.
+permissions:
+  contents: read
+
+jobs:
+  pr-policy:
+    name: pr-policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Enforce PR topology
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+
+          RULES = [("pre-develop/*", "develop"), ("develop", "main")]
+
+          def _matches(pattern, branch):
+              if pattern.endswith("*"):
+                  prefix = pattern[:-1]
+                  return branch.startswith(prefix) and len(branch) > len(prefix)
+              return pattern == branch
+
+          def allowed_destinations(head):
+              if not head:
+                  return []
+              return [destination for source, destination in RULES
+                      if _matches(source, head)]
+
+          def evaluate(head, base):
+              if not head or not base:
+                  return "absent or empty head/base ref"
+              destinations = allowed_destinations(head)
+              if not destinations:
+                  return "head is not an allowed source: %s" % head
+              if base not in destinations:
+                  return "base is not allowed for head: %s -> %s" % (head, base)
+              return None
+
+          def main():
+              event_path = os.environ.get("GITHUB_EVENT_PATH")
+              if not event_path:
+                  print("GITHUB_EVENT_PATH is not set", file=sys.stderr)
+                  return 1
+              try:
+                  with open(event_path, encoding="utf-8") as handle:
+                      payload = json.load(handle)
+              except (OSError, ValueError) as error:
+                  print("unreadable event payload: %s" % error, file=sys.stderr)
+                  return 1
+              pull_request = payload.get("pull_request") or {}
+              head = (pull_request.get("head") or {}).get("ref")
+              base = (pull_request.get("base") or {}).get("ref")
+              error = evaluate(head, base)
+              if error is not None:
+                  print("policy violation: %s" % error, file=sys.stderr)
+                  return 1
+              print("policy OK: %s -> %s" % (head, base))
+              return 0
+
+          if __name__ == "__main__":
+              sys.exit(main())
+          PY

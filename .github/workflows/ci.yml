@@ -35,11 +35,33 @@ jobs:
           python -m pip install -r src/app/requirements.txt
           python -m pip install ruff pip-audit
       - name: Run tests
-        run: python -m unittest discover -s tests -p 'test_*.py'
+        run: |
+          set -o pipefail
+          python -m unittest discover -s tests -p 'test_*.py' 2>&1 | tee test-output.log
       - name: Run lint
         run: ruff check src tests --select F --output-format=github
       - name: Audit Python dependencies
         run: pip-audit -r src/app/requirements.txt
+      - name: Write CI evidence
+        if: ${{ !cancelled() }}
+        run: |
+          {
+            echo "workflow=$GITHUB_WORKFLOW"
+            echo "job=$GITHUB_JOB"
+            echo "sha=$GITHUB_SHA"
+            echo "ref=$GITHUB_REF"
+            echo "python=$(python --version 2>&1)"
+          } > ci-evidence.txt
+      - name: Upload CI evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-evidence-test-${{ github.sha }}
+          path: |
+            ci-evidence.txt
+            test-output.log
+          if-no-files-found: error
+          retention-days: 7
 
   docker:
     name: Build Docker image
@@ -62,7 +84,26 @@ jobs:
           tags: app-web:ci-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Write CI evidence
+        if: ${{ !cancelled() }}
+        run: |
+          {
+            echo "workflow=$GITHUB_WORKFLOW"
+            echo "job=$GITHUB_JOB"
+            echo "sha=$GITHUB_SHA"
+            echo "ref=$GITHUB_REF"
+            echo "image=app-web:ci-${{ github.sha }}"
+          } > ci-evidence.txt
+      - name: Upload CI evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-evidence-docker-${{ github.sha }}
+          path: ci-evidence.txt
+          if-no-files-found: error
+          retention-days: 7
       - name: Check repository for leaked secrets
+        if: ${{ always() }}
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
