@@ -1,0 +1,17 @@
+# PR topology policy for app-web (deterministic local declaration).
+#
+# Only these two transitions are allowed:
+#   pre-develop/* -> develop
+#   develop       -> main
+# Everything else is denied. The must be interpreted as fail-closed: if this
+# file is missing, malformed, or contradicts the inline `pr-policy` check, the
+# check must fail. Keep the inline rules in
+# `.github/workflows/pr-policy.yml` in parity with this declaration.
+
+version: 1
+fail_closed: true
+rules:
+  - from: pre-develop/*
+    to: develop
+  - from: develop
+    to: main
